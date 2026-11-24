@@ -7,10 +7,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <title>Dawn of Elioria</title>
-  <link rel="preload" href="Build/1fec110a704eb3d9530593aa4be37791.loader.js" as="script">
-  <link rel="preload" href="Build/7ac9ddbb66083987b0089059fe65308b.framework.js.unityweb" as="fetch" crossorigin>
-  <link rel="preload" href="Build/f0bff05b88b8d10728abd0eac9dce744.wasm.unityweb" as="fetch" crossorigin>
-  <link rel="preload" href="Build/0e5f5f1924283b398f9b406fdf6ad0f8.data.unityweb" as="fetch" crossorigin>
+  <link rel="preload" href="Build/925b27cc3510e93487c8b476d667ecce.loader.js" as="script">
+  <link rel="preload" href="Build/e552252bb275c72de8f4159fe00ee303.framework.js.unityweb" as="fetch" crossorigin>
+  <link rel="preload" href="Build/0e6704e6e461b1586f7e0e5e8ec5dfc9.wasm.unityweb" as="fetch" crossorigin>
+  <link rel="preload" href="Build/a8e063070428550b4cab9c3a4b9229d1.data.unityweb" as="fetch" crossorigin>
   <style>
     html, body {
       width: 100%; height: 100%; margin: 0; background: #080b18; overflow: hidden;
@@ -31,14 +31,15 @@
       padding: 8px 14px; font-size: 14px; cursor: pointer; display: none;
     }
     dialog { box-sizing: border-box; width: min(500px, 92vw); background: #0d1224; color: inherit;
-      border: 1px solid #a4764b; padding: clamp(22px, 5vw, 44px); }
+      border: 1px solid #a4764b; padding: clamp(20px, 4.5vw, 38px); border-radius: 10px; }
     dialog::backdrop { background: #060812cc; }
-    dialog h2 { font: normal clamp(28px, 5vw, 42px) Georgia, serif; margin: 0 0 24px; }
+    dialog h2 { font: normal clamp(24px, 4.5vw, 38px) Georgia, serif; margin: 0 0 18px; }
     dialog label { display: block; margin-bottom: 8px; }
     dialog input { box-sizing: border-box; width: 100%; color: inherit; background: #18203a; border: 1px solid #58627a;
-      font-size: 22px; text-transform: uppercase; letter-spacing: .18em; padding: 12px 14px; }
-    dialog menu { display: flex; gap: 12px; padding: 0; margin: 24px 0 0; }
-    dialog button { color: inherit; background: #28314c; border: 0; padding: 12px 16px; font: inherit; cursor: pointer; }
+      font-size: 20px; padding: 12px 14px; border-radius: 6px; -webkit-user-select: text; user-select: text; }
+    #room-code { font-size: 22px; text-transform: uppercase; letter-spacing: .18em; }
+    dialog menu { display: flex; gap: 12px; padding: 0; margin: 20px 0 0; }
+    dialog button { color: inherit; background: #28314c; border: 0; padding: 12px 18px; font: inherit; cursor: pointer; border-radius: 6px; }
     dialog button[type=submit] { background: #7e5633; }
   </style>
 </head>
@@ -62,6 +63,17 @@
       </menu>
     </form>
   </dialog>
+  <dialog id="chat-dialog" aria-labelledby="chat-dialog-title">
+    <form id="chat-form">
+      <h2 id="chat-dialog-title">Сообщение спутнику</h2>
+      <label for="chat-text">Напишите сообщение или код нот (1–6)</label>
+      <input id="chat-text" name="chat-text" maxlength="120" autocomplete="off" placeholder="Например: 5 6 3 4 2 1">
+      <menu>
+        <button type="submit">Отправить</button>
+        <button id="cancel-chat" type="button">Отмена</button>
+      </menu>
+    </form>
+  </dialog>
   <script>
     const canvas = document.querySelector("#unity-canvas");
     const loading = document.querySelector("#loading");
@@ -70,6 +82,9 @@
     const dialog = document.querySelector("#room-dialog");
     const roomCode = document.querySelector("#room-code");
     const roomForm = document.querySelector("#room-form");
+    const chatDialog = document.querySelector("#chat-dialog");
+    const chatInput = document.querySelector("#chat-text");
+    const chatForm = document.querySelector("#chat-form");
     const fsBtn = document.querySelector("#fs-btn");
     const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
     const canFs = !!document.documentElement.requestFullscreen;
@@ -111,6 +126,23 @@
       sendGame("JoinFromBrowser", code);
     });
 
+    window.elioriaOpenChatDialog = () => {
+      chatInput.value = "";
+      if (!chatDialog.open) chatDialog.showModal();
+      setTimeout(() => chatInput.focus(), 40);
+    };
+    chatDialog.addEventListener("close", () => {
+      sendGame("RestoreBrowserKeyboard");
+      canvas.focus();
+    });
+    document.querySelector("#cancel-chat").addEventListener("click", () => chatDialog.close());
+    chatForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const msg = chatInput.value.trim();
+      chatDialog.close();
+      if (msg.length > 0) sendGame("SendChatFromBrowser", msg);
+    });
+
     const build = "Build/";
     const script = document.createElement("script");
     function failed(error) {
@@ -118,12 +150,12 @@
       progress.hidden = true;
       status.textContent = "Не удалось открыть игру. Обновите страницу и проверьте поддержку WebGL 2.";
     }
-    script.src = build + "1fec110a704eb3d9530593aa4be37791.loader.js";
+    script.src = build + "925b27cc3510e93487c8b476d667ecce.loader.js";
     script.onerror = failed;
     script.onload = () => createUnityInstance(canvas, {
-      dataUrl: build + "0e5f5f1924283b398f9b406fdf6ad0f8.data.unityweb",
-      frameworkUrl: build + "7ac9ddbb66083987b0089059fe65308b.framework.js.unityweb",
-      codeUrl: build + "f0bff05b88b8d10728abd0eac9dce744.wasm.unityweb",
+      dataUrl: build + "a8e063070428550b4cab9c3a4b9229d1.data.unityweb",
+      frameworkUrl: build + "e552252bb275c72de8f4159fe00ee303.framework.js.unityweb",
+      codeUrl: build + "0e6704e6e461b1586f7e0e5e8ec5dfc9.wasm.unityweb",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "Elioria",
       productName: "Dawn of Elioria",
