@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Dawn of Elioria</title>
+  <style>
+    html, body {
+      width: 100%; height: 100%; margin: 0; background: #080b18; overflow: hidden;
+      overscroll-behavior: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+    }
+    body { color: #f6e8cc; font: 17px system-ui, sans-serif; }
+    canvas { display: block; width: 100%; height: 100%; touch-action: none; outline: 0; }
+    main { position: fixed; inset: 0; display: grid; place-content: center; gap: 18px;
+      justify-items: center; padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+        max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); text-align: center; }
+    main[hidden] { display: none; }
+    h1 { font: normal clamp(28px, 6vw, 48px) Georgia, serif; margin: 0; }
+    progress { width: min(300px, 72vw); accent-color: #e5ab70; }
+    #status { max-width: 460px; margin: 0; }
+    #fs-btn {
+      position: fixed; left: max(12px, env(safe-area-inset-left)); bottom: max(12px, env(safe-area-inset-bottom));
+      z-index: 5; background: #101628b8; color: #f6e8cc; border: 1px solid #d4a36966; border-radius: 999px;
+      padding: 6px 12px; font-size: 13px; cursor: pointer; display: none;
+    }
+    dialog { box-sizing: border-box; width: min(500px, 92vw); background: #0d1224; color: inherit;
+      border: 1px solid #a4764b; padding: clamp(22px, 5vw, 44px); }
+    dialog::backdrop { background: #060812cc; }
+    dialog h2 { font: normal clamp(28px, 5vw, 42px) Georgia, serif; margin: 0 0 24px; }
+    dialog label { display: block; margin-bottom: 8px; }
+    dialog input { box-sizing: border-box; width: 100%; color: inherit; background: #18203a; border: 1px solid #58627a;
+      font-size: 22px; text-transform: uppercase; letter-spacing: .18em; padding: 12px 14px; }
+    dialog menu { display: flex; gap: 12px; padding: 0; margin: 24px 0 0; }
+    dialog button { color: inherit; background: #28314c; border: 0; padding: 12px 16px; font: inherit; cursor: pointer; }
+    dialog button[type=submit] { background: #7e5633; }
+  </style>
+</head>
+<body>
+  <canvas id="unity-canvas" tabindex="0" aria-label="Там, где начинается рассвет"></canvas>
+  <button id="fs-btn" type="button" aria-label="На весь экран">⛶ Экран</button>
+  <main id="loading">
+    <h1>Там, где начинается рассвет</h1>
+    <progress id="progress" max="1" value="0" aria-label="Прогресс загрузки"></progress>
+    <p id="status" role="status">Загружаем долину…</p>
+  </main>
+  <dialog id="room-dialog" aria-labelledby="room-dialog-title">
+    <form id="room-form">
+      <h2 id="room-dialog-title">Найти спутника</h2>
+      <label for="room-code">Шестизначный код комнаты</label>
+      <input id="room-code" name="room-code" required minlength="6" maxlength="6" pattern="[A-Za-z0-9]{6}"
+        autocapitalize="characters" spellcheck="false" autocomplete="off">
+      <menu>
+        <button type="submit">Присоединиться</button>
+        <button id="cancel-room" type="button">Назад</button>
+      </menu>
+    </form>
+  </dialog>
+  <script>
+    const canvas = document.querySelector("#unity-canvas");
+    const loading = document.querySelector("#loading");
+    const progress = document.querySelector("#progress");
+    const status = document.querySelector("#status");
+    const dialog = document.querySelector("#room-dialog");
+    const roomCode = document.querySelector("#room-code");
+    const roomForm = document.querySelector("#room-form");
+    const fsBtn = document.querySelector("#fs-btn");
+    if (document.documentElement.requestFullscreen && ("ontouchstart" in window || navigator.maxTouchPoints > 0)) {
+      fsBtn.style.display = "block";
+      fsBtn.addEventListener("click", () => {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+        else document.exitFullscreen().catch(() => {});
+      });
+    }
+    function sendGame(method, value = "") {
+      window.elioria?.SendMessage("Dawn of Elioria", method, value);
+    }
+    window.elioriaOpenRoomDialog = () => {
+      if (!dialog.open) dialog.showModal();
+      roomCode.focus();
+    };
+    dialog.addEventListener("close", () => {
+      sendGame("RestoreBrowserKeyboard");
+      canvas.focus();
+    });
+    document.querySelector("#cancel-room").addEventListener("click", () => dialog.close());
+    roomForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const code = roomCode.value.trim().toUpperCase();
+      dialog.close();
+      sendGame("JoinFromBrowser", code);
+    });
+
+    const build = "Build/";
+    const script = document.createElement("script");
+    function failed(error) {
+      console.error(error);
+      progress.hidden = true;
+      status.textContent = "Не удалось открыть игру. Обновите страницу и проверьте поддержку WebGL 2.";
+    }
+    script.src = build + "b784094a56c2effb8c613dda706d39a1.loader.js";
+    script.onerror = failed;
+    script.onload = () => createUnityInstance(canvas, {
+      dataUrl: build + "469c3e45821ec24b33d11c3cfb64a067.data.unityweb",
+      frameworkUrl: build + "e2a85094eb1a184cf371ec92d668b8d7.framework.js.unityweb",
+      codeUrl: build + "1e388aa4691af04bbf0ae7ec48aec43f.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "Elioria",
+      productName: "Dawn of Elioria",
+      productVersion: "0.1.0",
+      autoSyncPersistentDataPath: true,
+      devicePixelRatio: Math.min(window.devicePixelRatio || 1, 1.5)
+    }, value => { progress.value = value; }).then(instance => {
+      window.elioria = instance;
+      loading.hidden = true;
+    }, failed);
+    document.body.append(script);
+  </script>
+</body>
+</html>
