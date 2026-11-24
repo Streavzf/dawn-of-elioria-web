@@ -7,10 +7,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <title>Dawn of Elioria</title>
-  <link rel="preload" href="Build/92bf68cd58acadaeaa163ffd786c0956.loader.js" as="script">
+  <link rel="preload" href="Build/1fec110a704eb3d9530593aa4be37791.loader.js" as="script">
   <link rel="preload" href="Build/7ac9ddbb66083987b0089059fe65308b.framework.js.unityweb" as="fetch" crossorigin>
-  <link rel="preload" href="Build/818033d5025c51902943bbc8c57cbb10.wasm.unityweb" as="fetch" crossorigin>
-  <link rel="preload" href="Build/d34dd339fa6671cb7b19b1ee59b61e15.data.unityweb" as="fetch" crossorigin>
+  <link rel="preload" href="Build/f0bff05b88b8d10728abd0eac9dce744.wasm.unityweb" as="fetch" crossorigin>
+  <link rel="preload" href="Build/1a825078e3272682719a32e6aa083fcf.data.unityweb" as="fetch" crossorigin>
   <style>
     html, body {
       width: 100%; height: 100%; margin: 0; background: #080b18; overflow: hidden;
@@ -118,12 +118,12 @@
       progress.hidden = true;
       status.textContent = "Не удалось открыть игру. Обновите страницу и проверьте поддержку WebGL 2.";
     }
-    script.src = build + "92bf68cd58acadaeaa163ffd786c0956.loader.js";
+    script.src = build + "1fec110a704eb3d9530593aa4be37791.loader.js";
     script.onerror = failed;
     script.onload = () => createUnityInstance(canvas, {
-      dataUrl: build + "d34dd339fa6671cb7b19b1ee59b61e15.data.unityweb",
+      dataUrl: build + "1a825078e3272682719a32e6aa083fcf.data.unityweb",
       frameworkUrl: build + "7ac9ddbb66083987b0089059fe65308b.framework.js.unityweb",
-      codeUrl: build + "818033d5025c51902943bbc8c57cbb10.wasm.unityweb",
+      codeUrl: build + "f0bff05b88b8d10728abd0eac9dce744.wasm.unityweb",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "Elioria",
       productName: "Dawn of Elioria",
