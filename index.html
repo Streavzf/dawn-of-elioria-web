@@ -7,10 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <title>Dawn of Elioria</title>
-  <link rel="preload" href="Build/925b27cc3510e93487c8b476d667ecce.loader.js" as="script">
-  <link rel="preload" href="Build/e552252bb275c72de8f4159fe00ee303.framework.js.unityweb" as="fetch" crossorigin>
-  <link rel="preload" href="Build/0e6704e6e461b1586f7e0e5e8ec5dfc9.wasm.unityweb" as="fetch" crossorigin>
-  <link rel="preload" href="Build/a8e063070428550b4cab9c3a4b9229d1.data.unityweb" as="fetch" crossorigin>
+  <link rel="preconnect" href="https://gcore.jsdelivr.net" crossorigin>
   <style>
     html, body {
       width: 100%; height: 100%; margin: 0; background: #080b18; overflow: hidden;
@@ -143,35 +140,50 @@
       if (msg.length > 0) sendGame("SendChatFromBrowser", msg);
     });
 
-    const build = "Build/";
-    const script = document.createElement("script");
+    const useFastCdn = location.hostname.endsWith("github.io");
+    const sources = useFastCdn
+      ? ["https://gcore.jsdelivr.net/gh/Streavzf/dawn-of-elioria-web@main/Build/", "Build/"]
+      : ["Build/"];
+    let sourceIdx = 0;
+
     function failed(error) {
       console.error(error);
+      if (sourceIdx + 1 < sources.length) {
+        sourceIdx++;
+        status.textContent = "Переключаемся на резервный канал…";
+        bootFrom(sources[sourceIdx]);
+        return;
+      }
       progress.hidden = true;
       status.textContent = "Не удалось открыть игру. Обновите страницу и проверьте поддержку WebGL 2.";
     }
-    script.src = build + "925b27cc3510e93487c8b476d667ecce.loader.js";
-    script.onerror = failed;
-    script.onload = () => createUnityInstance(canvas, {
-      dataUrl: build + "a8e063070428550b4cab9c3a4b9229d1.data.unityweb",
-      frameworkUrl: build + "e552252bb275c72de8f4159fe00ee303.framework.js.unityweb",
-      codeUrl: build + "0e6704e6e461b1586f7e0e5e8ec5dfc9.wasm.unityweb",
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "Elioria",
-      productName: "Dawn of Elioria",
-      productVersion: "0.1.0",
-      autoSyncPersistentDataPath: true,
-      devicePixelRatio: Math.min(window.devicePixelRatio || 1, isTouch ? 1.35 : 1.5)
-    }, value => {
-      progress.value = value;
-      const pct = Math.min(99, Math.round(value * 100));
-      status.textContent = value < .9 ? `Загружаем долину… ${pct}%` : "Запускаем мир…";
-    }).then(instance => {
-      window.elioria = instance;
-      loading.hidden = true;
-      if (isTouch) sendGame("EnableTouchControls", "1");
-    }, failed);
-    document.body.append(script);
+
+    function bootFrom(build) {
+      const script = document.createElement("script");
+      script.src = build + "925b27cc3510e93487c8b476d667ecce.loader.js";
+      script.onerror = failed;
+      script.onload = () => createUnityInstance(canvas, {
+        dataUrl: build + "a8e063070428550b4cab9c3a4b9229d1.data.unityweb",
+        frameworkUrl: build + "e552252bb275c72de8f4159fe00ee303.framework.js.unityweb",
+        codeUrl: build + "0e6704e6e461b1586f7e0e5e8ec5dfc9.wasm.unityweb",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Elioria",
+        productName: "Dawn of Elioria",
+        productVersion: "0.1.0",
+        autoSyncPersistentDataPath: true,
+        devicePixelRatio: Math.min(window.devicePixelRatio || 1, isTouch ? 1.35 : 1.5)
+      }, value => {
+        progress.value = value;
+        const pct = Math.min(99, Math.round(value * 100));
+        status.textContent = value < .9 ? `Загружаем долину… ${pct}%` : "Запускаем мир…";
+      }).then(instance => {
+        window.elioria = instance;
+        loading.hidden = true;
+        if (isTouch) sendGame("EnableTouchControls", "1");
+      }, failed);
+      document.body.append(script);
+    }
+    bootFrom(sources[0]);
   </script>
 </body>
 </html>
