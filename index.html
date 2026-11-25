@@ -63,11 +63,22 @@
   <dialog id="chat-dialog" aria-labelledby="chat-dialog-title">
     <form id="chat-form">
       <h2 id="chat-dialog-title">Сообщение спутнику</h2>
-      <label for="chat-text">Напишите сообщение или код нот (1–6)</label>
-      <input id="chat-text" name="chat-text" maxlength="120" autocomplete="off" placeholder="Например: 5 6 3 4 2 1">
+      <label for="chat-text">Напишите сообщение спутнику</label>
+      <input id="chat-text" name="chat-text" maxlength="120" autocomplete="off" placeholder="Напишите сообщение…">
       <menu>
         <button type="submit">Отправить</button>
         <button id="cancel-chat" type="button">Отмена</button>
+      </menu>
+    </form>
+  </dialog>
+  <dialog id="name-dialog" aria-labelledby="name-dialog-title">
+    <form id="name-form">
+      <h2 id="name-dialog-title">Имя для спутника</h2>
+      <label for="partner-name">Как вы назовёте своего друга? Это имя отобразится у него в игре.</label>
+      <input id="partner-name" name="partner-name" required minlength="1" maxlength="20" autocomplete="off" placeholder="Например: Солнышко">
+      <menu>
+        <button type="submit">Сохранить</button>
+        <button id="cancel-name" type="button">Отмена</button>
       </menu>
     </form>
   </dialog>
@@ -82,6 +93,9 @@
     const chatDialog = document.querySelector("#chat-dialog");
     const chatInput = document.querySelector("#chat-text");
     const chatForm = document.querySelector("#chat-form");
+    const nameDialog = document.querySelector("#name-dialog");
+    const nameInput = document.querySelector("#partner-name");
+    const nameForm = document.querySelector("#name-form");
     const fsBtn = document.querySelector("#fs-btn");
     const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
     const canFs = !!document.documentElement.requestFullscreen;
@@ -140,6 +154,23 @@
       if (msg.length > 0) sendGame("SendChatFromBrowser", msg);
     });
 
+    window.elioriaOpenPartnerNameDialog = current => {
+      nameInput.value = current || "";
+      if (!nameDialog.open) nameDialog.showModal();
+      setTimeout(() => nameInput.focus(), 40);
+    };
+    nameDialog.addEventListener("close", () => {
+      sendGame("RestoreBrowserKeyboard");
+      canvas.focus();
+    });
+    document.querySelector("#cancel-name").addEventListener("click", () => nameDialog.close());
+    nameForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const nick = nameInput.value.trim();
+      nameDialog.close();
+      if (nick.length > 0) sendGame("SetPartnerNameFromBrowser", nick);
+    });
+
     const useFastCdn = location.hostname.endsWith("github.io");
     const sources = useFastCdn
       ? ["https://gcore.jsdelivr.net/gh/Streavzf/dawn-of-elioria-web@main/Build/", "Build/"]
@@ -160,12 +191,12 @@
 
     function bootFrom(build) {
       const script = document.createElement("script");
-      script.src = build + "925b27cc3510e93487c8b476d667ecce.loader.js";
+      script.src = build + "59085928fdd813a791e96e657bfdf714.loader.js";
       script.onerror = failed;
       script.onload = () => createUnityInstance(canvas, {
-        dataUrl: build + "a8e063070428550b4cab9c3a4b9229d1.data.unityweb",
-        frameworkUrl: build + "e552252bb275c72de8f4159fe00ee303.framework.js.unityweb",
-        codeUrl: build + "0e6704e6e461b1586f7e0e5e8ec5dfc9.wasm.unityweb",
+        dataUrl: build + "237af001acc6ee27ba8f29c568604394.data.unityweb",
+        frameworkUrl: build + "2f5fe51314f6cc4739f4a2a1c56fdaa2.framework.js.unityweb",
+        codeUrl: build + "1393cb185612be9fa2b8f87d61367cc9.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Elioria",
         productName: "Dawn of Elioria",
