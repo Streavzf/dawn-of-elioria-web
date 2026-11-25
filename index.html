@@ -177,7 +177,7 @@
 
     const useFastCdn = location.hostname.endsWith("github.io");
     const sources = useFastCdn
-      ? ["https://gcore.jsdelivr.net/gh/Streavzf/dawn-of-elioria-web@06616cb00e/Build/", "Build/"]
+      ? ["https://gcore.jsdelivr.net/gh/Streavzf/dawn-of-elioria-web@main/Build/", "Build/"]
       : ["Build/"];
     let sourceIdx = 0;
 
@@ -195,18 +195,18 @@
 
     function bootFrom(build) {
       const script = document.createElement("script");
-      script.src = build + "8b680c50131ed197eb4110fb6ee67293.loader.js";
+      script.src = build + "0fe188526b1c59362518f40648bb748f.loader.js";
       script.onerror = failed;
       script.onload = () => createUnityInstance(canvas, {
-        dataUrl: build + "2c28153d1262a5033f6127377a363e15.data.unityweb",
-        frameworkUrl: build + "8f3f71fa223d218c22610773c1e53dd0.framework.js.unityweb",
-        codeUrl: build + "633bebe3105a5810a8b5f648ecc37bd3.wasm.unityweb",
+        dataUrl: build + "e334b2864bb6e3cd552448b3f5a164ee.data.unityweb",
+        frameworkUrl: build + "043032ece14f3cb1d1bc4eaf75df1e69.framework.js.unityweb",
+        codeUrl: build + "d0b1ab7f5e08a4383ec97408c84a0fe2.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Elioria",
         productName: "Dawn of Elioria",
         productVersion: "0.1.0",
         autoSyncPersistentDataPath: true,
-        devicePixelRatio: Math.min(window.devicePixelRatio || 1, isTouch ? 1.2 : 1.35)
+        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2.0)
       }, value => {
         progress.value = value;
         const pct = Math.min(99, Math.round(value * 100));
