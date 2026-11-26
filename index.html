@@ -219,7 +219,7 @@
 
     const useFastCdn = location.hostname.endsWith("github.io");
     const sources = useFastCdn
-      ? ["https://gcore.jsdelivr.net/gh/Streavzf/dawn-of-elioria-web@9ca4c77417/Build/", "Build/"]
+      ? ["https://gcore.jsdelivr.net/gh/Streavzf/dawn-of-elioria-web@main/Build/", "Build/"]
       : ["Build/"];
     let sourceIdx = 0;
 
@@ -237,12 +237,12 @@
 
     function bootFrom(build) {
       const script = document.createElement("script");
-      script.src = build + "4326673b802a067ae75f32e53773175a.loader.js";
+      script.src = build + "acf7190009978265a30ede57f045c2e3.loader.js";
       script.onerror = failed;
       script.onload = () => createUnityInstance(canvas, {
-        dataUrl: build + "aedb4f1428dc6aa4e1fa19387a18477a.data.unityweb",
-        frameworkUrl: build + "eedc780ab9ac5b11ad5ec980bf81b668.framework.js.unityweb",
-        codeUrl: build + "231ab896385e92e83fedaef36054ac91.wasm.unityweb",
+        dataUrl: build + "7e619ce5b4fa459fc0c51b219a8ecd0a.data.unityweb",
+        frameworkUrl: build + "2f2b77046a9a852a0c19103d81a7dfbb.framework.js.unityweb",
+        codeUrl: build + "9dfc05b6346df1b091a4bc1a849b413d.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Elioria",
         productName: "Dawn of Elioria",
