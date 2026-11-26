@@ -86,6 +86,17 @@
       </menu>
     </form>
   </dialog>
+  <dialog id="text-dialog" aria-labelledby="text-dialog-title">
+    <form id="text-form">
+      <h2 id="text-dialog-title">Ввод</h2>
+      <label id="text-dialog-label" for="text-dialog-input"></label>
+      <input id="text-dialog-input" name="text-dialog-input" autocomplete="off" spellcheck="false">
+      <menu>
+        <button type="submit">Готово</button>
+        <button id="cancel-text" type="button">Отмена</button>
+      </menu>
+    </form>
+  </dialog>
   <script>
     const canvas = document.querySelector("#unity-canvas");
     const loading = document.querySelector("#loading");
@@ -100,6 +111,12 @@
     const nameDialog = document.querySelector("#name-dialog");
     const nameInput = document.querySelector("#partner-name");
     const nameForm = document.querySelector("#name-form");
+    const textDialog = document.querySelector("#text-dialog");
+    const textDialogTitle = document.querySelector("#text-dialog-title");
+    const textDialogLabel = document.querySelector("#text-dialog-label");
+    const textDialogInput = document.querySelector("#text-dialog-input");
+    const textForm = document.querySelector("#text-form");
+    let activeTextKind = "";
     const fsBtn = document.querySelector("#fs-btn");
     const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
     const canFs = !!document.documentElement.requestFullscreen;
@@ -175,9 +192,34 @@
       if (nick.length > 0) sendGame("SetPartnerNameFromBrowser", nick);
     });
 
+    window.elioriaOpenTextDialog = (kind, title, label, placeholder, current, maxLen, uppercase) => {
+      activeTextKind = kind || "";
+      textDialogTitle.textContent = title || "Ввод";
+      textDialogLabel.textContent = label || "";
+      textDialogInput.placeholder = placeholder || "";
+      textDialogInput.value = current || "";
+      textDialogInput.maxLength = maxLen > 0 ? maxLen : 32;
+      textDialogInput.style.textTransform = uppercase ? "uppercase" : "none";
+      textDialogInput.style.letterSpacing = uppercase ? ".18em" : "normal";
+      if (!textDialog.open) textDialog.showModal();
+      setTimeout(() => textDialogInput.focus(), 40);
+    };
+    textDialog.addEventListener("close", () => {
+      sendGame("RestoreBrowserKeyboard");
+      canvas.focus();
+    });
+    document.querySelector("#cancel-text").addEventListener("click", () => textDialog.close());
+    textForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const val = textDialogInput.value.trim();
+      const kind = activeTextKind;
+      textDialog.close();
+      sendGame("SetTextFieldFromBrowser", kind + "\n" + val);
+    });
+
     const useFastCdn = location.hostname.endsWith("github.io");
     const sources = useFastCdn
-      ? ["https://gcore.jsdelivr.net/gh/Streavzf/dawn-of-elioria-web@a5f846c933/Build/", "Build/"]
+      ? ["https://gcore.jsdelivr.net/gh/Streavzf/dawn-of-elioria-web@main/Build/", "Build/"]
       : ["Build/"];
     let sourceIdx = 0;
 
@@ -195,12 +237,12 @@
 
     function bootFrom(build) {
       const script = document.createElement("script");
-      script.src = build + "44567a8b9c5231f4333a1f261aa13199.loader.js";
+      script.src = build + "965de86a74ff2319869bec6cfa3bd2f7.loader.js";
       script.onerror = failed;
       script.onload = () => createUnityInstance(canvas, {
-        dataUrl: build + "39264a7ebf6ce9fc8a693465c3d9e0da.data.unityweb",
-        frameworkUrl: build + "7e596eeb5b88da418ad61131c2897336.framework.js.unityweb",
-        codeUrl: build + "c9e062c22d42c10786e5fb855ece6015.wasm.unityweb",
+        dataUrl: build + "21ef80397a1c9990b62dd3daa9659524.data.unityweb",
+        frameworkUrl: build + "c2349304b977b5e7379045fbbb58ebe3.framework.js.unityweb",
+        codeUrl: build + "1a854c9671998e8f9b01036fd7ce5b2c.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Elioria",
         productName: "Dawn of Elioria",
